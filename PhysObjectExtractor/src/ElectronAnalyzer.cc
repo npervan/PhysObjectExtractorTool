@@ -68,6 +68,7 @@ private:
   std::vector<float> electron_phi;
   std::vector<float> electron_ch;
   std::vector<float> electron_iso;
+  std::vector<int> electron_mh;
   std::vector<bool> electron_isLoose;
   std::vector<bool> electron_isMedium;
   std::vector<bool> electron_isTight;
@@ -117,6 +118,8 @@ ElectronAnalyzer::ElectronAnalyzer(const edm::ParameterSet& iConfig)
   mtree->GetBranch("electron_ch")->SetTitle("electron charge");
   mtree->Branch("electron_iso",&electron_iso);
   mtree->GetBranch("electron_iso")->SetTitle("electron isolation");
+  mtree->Branch("electron_mh",&electron_mh);
+  mtree->GetBranch("electron_mh")->SetTitle("electron missing hits");
   mtree->Branch("electron_isLoose",&electron_isLoose);
   mtree->GetBranch("electron_isLoose")->SetTitle("electron tagged loose");
   mtree->Branch("electron_isMedium",&electron_isMedium);
@@ -185,6 +188,7 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   electron_phi.clear();
   electron_ch.clear();
   electron_iso.clear();
+  electron_mh.clear();
   electron_isLoose.clear();
   electron_isMedium.clear();
   electron_isTight.clear();
@@ -198,7 +202,7 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     numelectron=myelectrons->size();
     for (reco::GsfElectronCollection::const_iterator itElec=myelectrons->begin(); itElec!=myelectrons->end(); ++itElec){
       
-      int missing_hits = itElec->gsfTrack()->trackerExpectedHitsInner().numberOfHits()-itElec->gsfTrack()->hitPattern().numberOfHits();
+      int missing_hits = itElec->gsfTrack()->trackerExpectedHitsInner().numberOfHits();//-itElec->gsfTrack()->hitPattern().numberOfHits();
       bool passelectronveto = !ConversionTools::hasMatchedConversion(*itElec, hConversions, beamspot.position());
       
       float el_pfIso = 999;
@@ -258,6 +262,7 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       electron_phi.push_back(itElec->phi());
       electron_ch.push_back(itElec->charge());
       electron_iso.push_back(el_pfIso);
+      electron_mh.push_back(missing_hits);
       electron_isLoose.push_back(isLoose);
       electron_isMedium.push_back(isMedium);
       electron_isTight.push_back(isTight);
